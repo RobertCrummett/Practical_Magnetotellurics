@@ -1,29 +1,37 @@
-%% Routine to solve transfer functions for Earth Model
-clear
+%% Routine to solve transfer functions for layered Earth Model
+clear; clf; close all;
 
 % 5 layers
-conductivity = [800, 2000, 1000, 200, 100];
+conductivity = [10^(-3.5), 10^(-3), 10^(-2.5), 10^(-1.5), 10^(-1)];
 interface_depths = [0, 50, 500, 750, 1050];
 
-C_n = TF_LayeredEarth(conductivity, interface_depths);
+[C_n, ares] = TF_LayeredEarth(conductivity, interface_depths);
 
-% n = length(conductivity); % number of layers
-% 
-% % magnetic permeability of free space
-% mu_0 = 1.2566*10^(-6); % [H m^-1]
-% 
-% Ccell = cell(n,1);
-% 
-% % layer n
-% q_n = @(omega, n) sqrt(1i*conductivity(n)*mu_0*omega);
-% C = @(omega) 1/q_n(omega, n);
-% Ccell{n} = C;
-% 
-% for i = 1:n-1
-%     C = @(omega) (1/q_n(omega,n-i))*(q_n(omega,n-i)*C(omega) + ...
-%         tanh(q_n(omega,n-i)*(interface_depths(n-i+1) - ...
-%         interface_depths(n-i)))/(1 + q_n(omega,n-i)*C(omega)*...
-%         tanh(q_n(omega,n-1)*(interface_depths(n-i+1) - ...
-%         interface_depths(n-i)))));
-%     Ccell{n - i} = C;
-% end
+T = logspace(-3,3);
+rho = ares{1};
+C = C_n{1};
+
+figure(1)
+subplot(2,1,1)
+hold on
+for i = 1:length(T)
+    plot(T(i), rho(period_2_freq(T(i))),'*r')
+end
+hold off
+ylabel('Apparent Resistivity [\Omega m]')
+xlabel('Period [s]')
+set(gca,'XScale','log')
+set(gca,'YScale','log')
+set(gca,'YLim',[10,10^4])
+
+subplot(2,1,2)
+hold on
+for i = 1:length(T)
+    plot(T(i), rad2deg(C_2_phi(C(period_2_freq(T(i))))), '*b')
+end
+yline(45,'--k')
+hold off
+xlabel('Period [s]')
+ylabel('Degrees [^{\circ}]')
+set(gca,'XScale','log')
+set(gca,'YLim',[0, 90])

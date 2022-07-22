@@ -1,4 +1,4 @@
-function [C_n] = TF_LayeredEarth(conductivity,interface_depths)
+function [C_n, apparent_resistivity] = TF_LayeredEarth(conductivity,interface_depths)
 % Calculates transfer functions for a layered half space
 %
 % Input arguments:
@@ -28,6 +28,8 @@ mu_0 = 1.2566*10^(-6); % [H m^-1]
 
 % preallocating output cell
 C_n = cell(n,1);
+apparent_resistivity = cell(n,1);
+
 
 % layer n, a homogenous half space
 q_n = @(omega, n) sqrt(1i*conductivity(n)*mu_0*omega);
@@ -36,12 +38,18 @@ C_n{n} = C;
 
 % layer n-1 through 1, by Wait's recursion method
 for i = 1:n-1
-    C = @(omega) (1/q_n(omega,n-i))*(q_n(omega,n-i)*C(omega) + ...
-        tanh(q_n(omega,n-i)*(interface_depths(n-i+1) - ...
-        interface_depths(n-i)))/(1 + q_n(omega,n-i)*C(omega)*...
-        tanh(q_n(omega,n-1)*(interface_depths(n-i+1) - ...
+    C = @(omega) (1./q_n(omega,n-i)).*(q_n(omega,n-i).*C(omega) + ...
+        tanh(q_n(omega,n-i).*(interface_depths(n-i+1) - ...
+        interface_depths(n-i)))./(1 + q_n(omega,n-i).*C(omega).*...
+        tanh(q_n(omega,n-1).*(interface_depths(n-i+1) - ...
         interface_depths(n-i)))));
     C_n{n - i} = C;
+end
+
+% apparent resistivity
+for i = 1:n
+    C = C_n{i};
+    apparent_resistivity{i} = @(omega) abs(C(omega)).^2*mu_0*omega;
 end
 
 end
