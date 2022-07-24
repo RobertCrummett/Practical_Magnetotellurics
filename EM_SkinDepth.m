@@ -7,7 +7,7 @@ function [p, q] = EM_SkinDepth(conductivity, frequency)
 %
 % Output:
 % p - The electromagnetic skin depth. [m]
-% q - A funky number.
+% q - Propogration constant [m^-1].
 
 % magnetic permeability of free space
 mu_0 = 1.2566*10^(-6); % [H m^-1]
