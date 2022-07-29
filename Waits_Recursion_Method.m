@@ -9,8 +9,10 @@
 clear; clf; close all
 
 % Inputs:
-conductivity = [10^(-3), 10^(-1), 10^(-2), 10^(-1)];
-depth = [0, 10^3, 10^(4), 10^(5.5)];
+conductivity = [10^(-4.4), 10^(-2)];
+conductivity = [10^(-0.5), 10^(-2)];
+depth = [0, 10^4];
+depth = [0, 100];
 
 %% Wait's Recursion Method Implemented
 mu_0 = 1.2566*10^(-6);
@@ -26,9 +28,11 @@ tf{N} = @(f) C(f);
 
 % layer N - 1 through 1
 for i = N-1:-1:1
+
     C = @(f,n) (1./q(f,n)).*...
         (q(f,n).*C(f) + tanh(q(f,n).*L(n)))./...
         (1 + q(f,n).*C(f).*tanh(q(f,n).*L(n)));
+
     C = @(f) C(f,i);
     tf{i} = C;
 end
@@ -47,7 +51,7 @@ subplot(2,2,3)
 plot(T, ar(freq), 'r*')
 set(gca,'YScale','log')
 set(gca,'XScale','log')
-ylim([10, 10^(4)])
+ylim([10^0, 10^(4)])
 
 xlabel('Period [s]')
 ylabel('Apparent Resistivity [{\Omega}m]')
@@ -66,7 +70,7 @@ set(gca,'YLim',[0,90])
 xlabel('Period [s]')
 ylabel('Phase [degrees]')
 
-% Plot depth vs resistivity (Earth model)
+% Plot depth vs resistivity (earth model)
 subplot(2,2,1.5);
 max_depth = (10^6);
 N = length(depth);
